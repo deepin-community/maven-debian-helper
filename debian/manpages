@@ -1,0 +1,4 @@
+debian/generated-manpages/mh_genrules.1
+debian/generated-manpages/mh_lspoms.1
+debian/generated-manpages/mh_make.1
+debian/generated-manpages/mh_resolve_dependencies.1
