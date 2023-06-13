@@ -1,0 +1,4 @@
+version=4
+opts="mode=svn,uversionmangle=s/-(alpha|beta|rc)(-)?/~$1$2/" \
+  ${baseUrl}/ \
+  ${tagMarker}(\d.*)/

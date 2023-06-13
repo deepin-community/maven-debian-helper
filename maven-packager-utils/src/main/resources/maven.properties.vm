@@ -1,0 +1,9 @@
+#set( $H = '#' )
+$H Include here properties to pass to Maven during the build.
+$H For example:
+$H maven.test.skip=true
+$H project.build.sourceEncoding=UTF-8
+
+#if(!$runTests)
+maven.test.skip=true
+#end
