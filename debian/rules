@@ -1,4 +1,36 @@
 #!/usr/bin/make -f
 
+include /usr/share/dpkg/pkg-info.mk
+
+export CLASSPATH=/usr/share/java/commons-io.jar\
+                :/usr/share/java/maven-artifact-3.x.jar\
+                :/usr/share/java/maven-core-3.x.jar\
+                :/usr/share/java/maven-embedder-3.x.jar\
+                :/usr/share/java/maven-model-3.x.jar\
+                :/usr/share/java/maven-plugin-api-3.x.jar\
+                :/usr/share/java/maven-plugin-annotations.jar\
+                :/usr/share/java/maven-resolver-api.jar\
+                :/usr/share/java/maven-resolver-util.jar\
+                :/usr/share/java/maven-repo-helper.jar\
+                :/usr/share/java/plexus-utils2.jar\
+                :/usr/share/java/velocity.jar
+
 %:
-	dh $@
+	dh $@ --buildsystem=ant --with maven-repo-helper
+
+override_dh_auto_build:
+	# Generation of man pages
+	mkdir -p debian/generated-manpages
+	help2man -N -o debian/generated-manpages/mh_genrules.1             bin/mh_genrules
+	help2man -N -o debian/generated-manpages/mh_lspoms.1               bin/mh_lspoms
+	help2man -N -o debian/generated-manpages/mh_make.1                 bin/mh_make
+	help2man -N -o debian/generated-manpages/mh_resolve_dependencies.1 bin/mh_resolve_dependencies
+
+	dh_auto_build -- package -Dpackage=$(DEB_SOURCE) -Dbin.package=$(DEB_SOURCE)
+	mh_unpatchpoms -pmaven-debian-helper
+
+# Helper target, to use when updating the version of this package
+update-package-version:
+	perl -p -i -e "s/^    <version>([0-9\.]+<)/    <version>${DEB_VERSION}</" pom.xml
+	perl -p -i -e "s/^        <version>([0-9\.]+<)/        <version>${DEB_VERSION}</" maven-debian-helper/pom.xml debian-maven-plugin/pom.xml maven-packager-utils/pom.xml
+	perl -p -i -e "s/maven-debian-helper \(>= ([0-9\.]+)\)/maven-debian-helper \(>= ${DEB_VERSION})/" share/cdbs/1/class/maven-vars.mk maven-packager-utils/src/main/resources/control.vm
